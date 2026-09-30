@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projek IPAS - Klasifikasi Zat & Karakteristik Wujudnya | SMKN 1 Tasikmalaya</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        solid: '#3b82f6',
+                        liquid: '#06b6d4',
+                        gas: '#10b981'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .heading-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 4px;
+        }
+        
+        /* Particle canvas styling */
+        #particleCanvas {
+            background: radial-gradient(circle, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 1) 100%);
+            border-radius: 0.75rem;
+        }
+
+        /* Certificate Print Styling */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableCertificate, #printableCertificate * {
+                visibility: visible;
+            }
+            #printableCertificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none !important;
+                border: 8px double #0284c7 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Pulse Animation */
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.03); opacity: 1; }
+        }
+        .pulse-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
+
+    <!-- NAVBAR -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Identitas Singkat -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('hero')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-cyan-500/20">
+                        <i class="fa-solid to-flask"></i>
+                        <span class="heading-font">IPAS</span>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm sm:text-base leading-tight text-slate-900 dark:text-white">SMKN 1 Tasikmalaya</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Projek IPAS • Fase E (X)</p>
+                    </div>
+                </div>
+
+                <!-- Control Buttons & Sound/Theme Toggles -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Progress Mini Badge -->
+                    <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                        <i class="fa-solid fa-chart-line text-cyan-500 mr-2"></i>
+                        Progress: <span id="navProgressText" class="ml-1 text-cyan-600 dark:text-cyan-400 font-bold">0%</span>
+                    </div>
+
+                    <!-- Audio Toggle -->
+                    <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-slate-700 transition" title="Efek Suara">
+                        <i id="soundIcon" class="fa-solid fa-volume-high text-cyan-600 dark:text-cyan-400"></i>
+                    </button>
+
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-slate-700 transition" title="Ubah Tema">
+                        <i id="themeIcon" class="fa-solid fa-moon text-indigo-500"></i>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Progress Bar -->
+        <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5">
+            <div id="globalProgressBar" class="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 h-1.5 transition-all duration-500 rounded-r-full" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION MENU -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden lg:hidden flex flex-col justify-between p-6">
+        <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <span class="text-lg font-bold text-white">Menu Pembelajaran</span>
+                <button onclick="toggleMobileMenu()" class="p-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <nav class="mt-6 flex flex-col space-y-2 overflow-y-auto max-h-[70vh]" id="mobileNavItems">
+                <!-- Populated by JS -->
+            </nav>
+        </div>
+        <div class="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+            Guru Pengampu: Wiyanti Dewi Permana, S.Pd.
+        </div>
+    </div>
+
+    <!-- MAIN STEPPER NAVIGATION BAR (DESKTOP) -->
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-3 hidden lg:block no-print shadow-inner">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400" id="desktopStepper">
+                <!-- Rendered dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- SECTION 1: HERO / BERANDA -->
+        <section id="sec-hero" class="space-y-12 transition-all duration-300">
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 text-white p-8 sm:p-12 shadow-2xl border border-slate-800">
+                <!-- Background decorative particles -->
+                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-atom animate-spin-slow"></i> Media Pembelajaran Digital
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight heading-font leading-tight">
+                            PROJEK IPAS <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-sky-300">ZAT DAN PERUBAHANNYA</span>
+                        </h1>
+                        <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+                            "Klasifikasi Zat dan Karakteristik Wujudnya" untuk siswa Kelas X/E SMK Negeri 1 Tasikmalaya.
+                        </p>
+
+                        <!-- Information Badges -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 p-3 rounded-2xl flex items-center space-x-3">
+                                <div class="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-400"><i class="fa-solid fa-chalkboard-user"></i></div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 uppercase font-semibold">Guru Pengampu</p>
+                                    <p class="text-xs font-bold text-white">Wiyanti Dewi Permana</p>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 p-3 rounded-2xl flex items-center space-x-3">
+                                <div class="p-2.5 rounded-xl bg-blue-500/20 text-blue-400"><i class="fa-solid fa-school"></i></div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 uppercase font-semibold">Sekolah</p>
+                                    <p class="text-xs font-bold text-white">SMKN 1 Tasikmalaya</p>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 p-3 rounded-2xl flex items-center space-x-3">
+                                <div class="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400"><i class="fa-solid fa-layer-group"></i></div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 uppercase font-semibold">Kelas / Fase</p>
+                                    <p class="text-xs font-bold text-white">X / Fase E</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="pt-4 flex flex-wrap gap-4">
+                            <button onclick="navigateTo('tujuan')" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-lg shadow-lg shadow-cyan-500/25 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-3">
+                                🚀 Mulai Pembelajaran <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Hero Illustration Cards -->
+                    <div class="lg:col-span-5 grid grid-cols-3 gap-3">
+                        <div class="bg-gradient-to-b from-blue-900/60 to-slate-900/80 border border-blue-500/30 rounded-2xl p-4 text-center space-y-3 hover:scale-105 transition duration-300">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl font-bold">
+                                🧱
+                            </div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-blue-300">PADAT</h3>
+                            <p class="text-[10px] text-slate-400">Rapat & Teratur</p>
+                        </div>
+                        <div class="bg-gradient-to-b from-cyan-900/60 to-slate-900/80 border border-cyan-500/30 rounded-2xl p-4 text-center space-y-3 hover:scale-105 transition duration-300">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl font-bold">
+                                💧
+                            </div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-cyan-300">CAIR</h3>
+                            <p class="text-[10px] text-slate-400">Agak Renggang</p>
+                        </div>
+                        <div class="bg-gradient-to-b from-emerald-900/60 to-slate-900/80 border border-emerald-500/30 rounded-2xl p-4 text-center space-y-3 hover:scale-105 transition duration-300">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                                💨
+                            </div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-300">GAS</h3>
+                            <p class="text-[10px] text-slate-400">Sangat Bebas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TUJUAN PEMBELAJARAN -->
+        <section id="sec-tujuan" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-xl">
+                <div class="max-w-3xl mx-auto text-center space-y-4">
+                    <span class="px-4 py-1.5 rounded-full bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 font-semibold text-xs uppercase tracking-widest">
+                        🎯 Capaian & Goals
+                    </span>
+                    <h2 class="text-3xl font-extrabold heading-font text-slate-900 dark:text-white">
+                        Tujuan Pembelajaran
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
+                        Setelah mengikuti alur pembelajaran interaktif ini, murid diharapkan dapat mencapai kompetensi utama Projek IPAS berikut:
+                    </p>
+                </div>
+
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-slate-800 dark:to-slate-800/60 border border-cyan-200 dark:border-slate-700 flex space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-cyan-500 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-cyan-500/30">
+                            1
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Klasifikasi Wujud Zat</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                                Murid dapat mengklasifikasikan macam-macam zat berdasarkan wujudnya (padat, cair, gas) di lingkungan sekitar dengan tepat.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-800/60 border border-indigo-200 dark:border-slate-700 flex space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-indigo-500/30">
+                            2
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Analisis Karakteristik Partikel</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                                Murid dapat menganalisis dan membandingkan karakteristik bentuk, volume, susunan, gaya tarik, serta gerak partikel tiap wujud zat.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('hero')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('eksplorasi')" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Lanjut ke Eksplorasi <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: EKSPLORASI -->
+        <section id="sec-eksplorasi" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-6">
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 1: Orientasi & Pengamatan</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        🔎 Eksplorasi Pertanyaan Pemantik
+                    </h2>
+                </div>
+
+                <!-- Pertanyaan Pemantik Box -->
+                <div class="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 text-amber-900 dark:text-amber-200 space-y-2">
+                    <div class="flex items-center space-x-2 font-bold text-lg">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span>Pertanyaan Pikirkan Bersama:</span>
+                    </div>
+                    <p class="text-base sm:text-lg italic font-medium">
+                        "Apa persamaan dan perbedaan mendasar antara Batu 🪨, Air 💧, dan Udara 💨?"
+                    </p>
+                </div>
+
+                <p class="text-sm text-slate-600 dark:text-slate-300">
+                    Klik tiap kartu wujud di bawah ini untuk menemukan fakta ilmiah singkat mengenai batu, air, dan udara!
+                </p>
+
+                <!-- Interactive Exploratory Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Padat Card -->
+                    <div onclick="showFact('padat')" class="cursor-pointer group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <div class="text-4xl mb-3 group-hover:scale-110 transition duration-300">🧱 Batu / Kayu</div>
+                        <h3 class="font-bold text-lg text-blue-600 dark:text-blue-400">Zat Padat</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Bentuknya kokoh dan tidak berubah meskipun dipindahkan tempatnya.</p>
+                        <div class="mt-4 text-xs text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1">
+                            <span>Buka fakta ilmiah</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>
+
+                    <!-- Cair Card -->
+                    <div onclick="showFact('cair')" class="cursor-pointer group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <div class="text-4xl mb-3 group-hover:scale-110 transition duration-300">💧 Air / Minyak</div>
+                        <h3 class="font-bold text-lg text-cyan-600 dark:text-cyan-400">Zat Cair</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Bentuknya berubah menyesuaikan wadah, tetapi volumenya tetap.</p>
+                        <div class="mt-4 text-xs text-cyan-600 dark:text-cyan-400 font-bold flex items-center gap-1">
+                            <span>Buka fakta ilmiah</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>
+
+                    <!-- Gas Card -->
+                    <div onclick="showFact('gas')" class="cursor-pointer group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <div class="text-4xl mb-3 group-hover:scale-110 transition duration-300">💨 Udara / Balon</div>
+                        <h3 class="font-bold text-lg text-emerald-600 dark:text-emerald-400">Zat Gas</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Tidak terlihat secara jelas, memenuhi seluruh ruang wadahnya.</p>
+                        <div class="mt-4 text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                            <span>Buka fakta ilmiah</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fact Display Modal/Box -->
+                <div id="factBox" class="hidden p-6 rounded-2xl bg-cyan-50 dark:bg-slate-800/90 border border-cyan-200 dark:border-cyan-800/50 transition-all">
+                    <h4 id="factTitle" class="font-bold text-cyan-900 dark:text-cyan-300 text-lg mb-2"></h4>
+                    <p id="factDesc" class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed"></p>
+                </div>
+
+                <!-- Warm-up Interactive Activity -->
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-lg">
+                        ⚡ Uji Cepat Aktivitas Awal: Tebak Wujud Benda
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pilih klasifikasi wujud yang tepat untuk benda-benda berikut:</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Item 1 -->
+                        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-between">
+                            <span class="font-semibold text-sm">1. Asal Asap Pembakaran 🌫️</span>
+                            <div class="flex space-x-1" id="warmup-1">
+                                <button onclick="checkWarmup(1, 'padat', false)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Padat</button>
+                                <button onclick="checkWarmup(1, 'cair', false)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Cair</button>
+                                <button onclick="checkWarmup(1, 'gas', true)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Gas</button>
+                            </div>
+                        </div>
+                        <!-- Item 2 -->
+                        <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-between">
+                            <span class="font-semibold text-sm">2. Minyak Goreng 🧴</span>
+                            <div class="flex space-x-1" id="warmup-2">
+                                <button onclick="checkWarmup(2, 'padat', false)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Padat</button>
+                                <button onclick="checkWarmup(2, 'cair', true)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Cair</button>
+                                <button onclick="checkWarmup(2, 'gas', false)" class="px-2.5 py-1 text-xs rounded bg-white dark:bg-slate-700 border hover:bg-slate-200">Gas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('tujuan')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('materi'); markStepCompleted('eksplorasi');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Paham, Lanjut ke Materi <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: MATERI & SIMULASI PARTIKEL -->
+        <section id="sec-materi" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div>
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 2: Pemahaman Konsep</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        📚 Materi Pembelajaran & Simulasi Partikel
+                    </h2>
+                </div>
+
+                <!-- Definition Box -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3">
+                    <h3 class="font-bold text-lg text-cyan-600 dark:text-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open"></i> Pengertian Zat (Materi)
+                    </h3>
+                    <p class="text-slate-700 dark:text-slate-200 leading-relaxed text-sm sm:text-base">
+                        <strong>Materi (Zat)</strong> adalah segala sesuatu yang memiliki <span class="text-cyan-600 dark:text-cyan-400 font-bold">massa</span> dan <span class="text-cyan-600 dark:text-cyan-400 font-bold">menempati ruang (memiliki volume)</span>. Dalam ilmu Pengetahuan Alam dan Sosial (IPAS), secara fisik zat dikelompokkan menjadi 3 wujud utama: <strong>Padat, Cair, dan Gas</strong>.
+                    </p>
+                </div>
+
+                <!-- CANVAS PARTICLE SIMULATION CONTAINER -->
+                <div class="bg-slate-950 rounded-3xl p-6 border border-slate-800 text-white space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-cyan-400 flex items-center gap-2">
+                                <i class="fa-solid fa-microscope"></i> Visualisasi Microscopic Partikel
+                            </h3>
+                            <p class="text-xs text-slate-400">Pilih wujud zat untuk melihat bagaimana susunan dan gerak molekul partikelnya!</p>
+                        </div>
+
+                        <!-- Wujud Tabs -->
+                        <div class="flex p-1 bg-slate-900 rounded-xl border border-slate-800">
+                            <button id="tabPadat" onclick="setParticleState('padat')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-blue-600 text-white">
+                                🧱 PADAT
+                            </button>
+                            <button id="tabCair" onclick="setParticleState('cair')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                                💧 CAIR
+                            </button>
+                            <button id="tabGas" onclick="setParticleState('gas')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                                💨 GAS
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Box -->
+                    <div class="relative w-full overflow-hidden flex flex-col items-center">
+                        <canvas id="particleCanvas" width="600" height="300" class="w-full max-w-2xl h-64 sm:h-72 border border-slate-800 shadow-inner"></canvas>
+                        
+                        <!-- Overlay State Banner -->
+                        <div id="particleInfoBadge" class="mt-3 text-center px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 max-w-lg">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="flex justify-center items-center space-x-3 pt-2">
+                        <button onclick="playSimulation()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> ▶ Mulai Animasi
+                        </button>
+                        <button onclick="pauseSimulation()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-pause"></i> ⏸ Jeda
+                        </button>
+                        <button onclick="resetSimulation()" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> ↻ Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TABEL PERBEDAAN KARAKTERISTIK -->
+                <div class="space-y-4 pt-4">
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-cyan-600"></i> Tabel Perbandingan Karakteristik Wujud Zat
+                    </h3>
+
+                    <!-- Desktop View Table -->
+                    <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold uppercase text-xs">
+                                <tr>
+                                    <th class="p-4">Karakteristik</th>
+                                    <th class="p-4 text-blue-600 dark:text-blue-400">Zat Padat 🧱</th>
+                                    <th class="p-4 text-cyan-600 dark:text-cyan-400">Zat Cair 💧</th>
+                                    <th class="p-4 text-emerald-600 dark:text-emerald-400">Zat Gas 💨</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-xs sm:text-sm">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Bentuk</td>
+                                    <td class="p-4">Tetap (tidak mengikuti wadah)</td>
+                                    <td class="p-4">Berubah (mengikuti wujud wadahnya)</td>
+                                    <td class="p-4">Berubah (mengisi seluruh ruangan wadah)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Volume</td>
+                                    <td class="p-4">Tetap</td>
+                                    <td class="p-4">Tetap</td>
+                                    <td class="p-4">Berubah (memenuhi wadahnya)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Susunan Partikel</td>
+                                    <td class="p-4">Sangat rapat dan teratur</td>
+                                    <td class="p-4">Agak renggang dan kurang teratur</td>
+                                    <td class="p-4">Sangat renggang dan acak</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Gaya Tarik Partikel</td>
+                                    <td class="p-4">Sangat kuat</td>
+                                    <td class="p-4">Lemah</td>
+                                    <td class="p-4">Sangat lemah (hampir tidak ada)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Gerakan Partikel</td>
+                                    <td class="p-4">Hanya bergetar di tempatnya</td>
+                                    <td class="p-4">Bebas bergerak tetapi terbatas</td>
+                                    <td class="p-4">Bebas bergerak dengan sangat cepat</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-4 font-bold">Kompresibilitas</td>
+                                    <td class="p-4">Tidak dapat dimampatkan</td>
+                                    <td class="p-4">Sulit dimampatkan</td>
+                                    <td class="p-4">Sangat mudah dimampatkan</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile View Responsive Accordion/Cards -->
+                    <div class="md:hidden space-y-3">
+                        <div class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700">
+                            <h4 class="font-bold text-blue-700 dark:text-blue-400 mb-2">🧱 Zat Padat</h4>
+                            <ul class="text-xs space-y-1.5 text-slate-700 dark:text-slate-300">
+                                <li>• <strong>Bentuk & Volume:</strong> Tetap</li>
+                                <li>• <strong>Partikel:</strong> Sangat rapat & teratur</li>
+                                <li>• <strong>Gaya Tarik:</strong> Sangat kuat</li>
+                                <li>• <strong>Gerakan:</strong> Bergetar di tempat</li>
+                                <li>• <strong>Kompresibilitas:</strong> Tidak dapat dimampatkan</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-cyan-50 dark:bg-slate-800/80 border border-cyan-200 dark:border-slate-700">
+                            <h4 class="font-bold text-cyan-700 dark:text-cyan-400 mb-2">💧 Zat Cair</h4>
+                            <ul class="text-xs space-y-1.5 text-slate-700 dark:text-slate-300">
+                                <li>• <strong>Bentuk:</strong> Berubah mengikuti wadah</li>
+                                <li>• <strong>Volume:</strong> Tetap</li>
+                                <li>• <strong>Partikel:</strong> Agak renggang & kurang teratur</li>
+                                <li>• <strong>Gaya Tarik:</strong> Lemah</li>
+                                <li>• <strong>Gerakan:</strong> Bebas bergerak terbatas</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-slate-800/80 border border-emerald-200 dark:border-slate-700">
+                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-2">💨 Zat Gas</h4>
+                            <ul class="text-xs space-y-1.5 text-slate-700 dark:text-slate-300">
+                                <li>• <strong>Bentuk & Volume:</strong> Berubah memenuhi wadah</li>
+                                <li>• <strong>Partikel:</strong> Sangat renggang & acak</li>
+                                <li>• <strong>Gaya Tarik:</strong> Sangat lemah</li>
+                                <li>• <strong>Gerakan:</strong> Sangat cepat & bebas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('eksplorasi')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('contoh'); markStepCompleted('materi');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Lanjut ke Contoh Nyata <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: CONTOH DALAM KEHIDUPAN SEHARI-HARI -->
+        <section id="sec-contoh" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div>
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 3: Kontekstual Lingkungan</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        🌎 Zat di Sekitar Kita
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                        Klik pada kartu contoh untuk melihat detail sifat dan penerapan praktisnya!
+                    </p>
+                </div>
+
+                <!-- Interactive Category Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- PADAT -->
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-blue-500 text-white flex items-center justify-between shadow-md">
+                            <span class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-cube"></i> Zat Padat</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded-md">6 Contoh</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div onclick="openExampleModal('Kayu & Batu', 'Struktur padat dan kokoh, digunakan sebagai bahan bangunan di SMK N 1 Tasikmalaya.', 'Padat')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🪨 Batu & Kayu Perkakas</span>
+                                <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Besi & Logam', 'Memiliki ikatan partikel sangat kuat dan kerapatan tinggi.', 'Padat')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">⚙️ Besi Mesin Praktikum</span>
+                                <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Plastik Gawai', 'Bahan polimer sintetis berwujud padat pelindung perangkat smartphone.', 'Padat')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">📱 Casing HP / Laptop</span>
+                                <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Meja Belajar', 'Memberikan bentuk tetap untuk mendukung aktivitas belajar.', 'Padat')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🪑 Meja Belajar Kelas</span>
+                                <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Kaca Jendela', 'Bahan transparan padat untuk pencahayaan kelas.', 'Padat')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🪟 Kaca Jendela Ruang</span>
+                                <i class="fa-solid fa-circle-info text-blue-500 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAIR -->
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-cyan-500 text-white flex items-center justify-between shadow-md">
+                            <span class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-droplet"></i> Zat Cair</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded-md">5 Contoh</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div onclick="openExampleModal('Air Minum', 'Memiliki kemampuan mengalir dan meresap melalui pipa/kapiler.', 'Cair')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">💧 Air Minum Mineral</span>
+                                <i class="fa-solid fa-circle-info text-cyan-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Minyak Goreng', 'Zat cair kental yang memiliki viskositas sedang.', 'Cair')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🧴 Minyak Goreng / Dapur</span>
+                                <i class="fa-solid fa-circle-info text-cyan-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Bensin/Pertalite', 'Bahan bakar cair yang mudah menguap untuk kendaraan bermotor.', 'Cair')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">⛽ Pertalite / Bensin</span>
+                                <i class="fa-solid fa-circle-info text-cyan-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Alkohol Medis', 'Cairan antiseptik yang cepat menyerap kelembaban.', 'Cair')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🧪 Alkohol Medis 70%</span>
+                                <i class="fa-solid fa-circle-info text-cyan-500 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GAS -->
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-md">
+                            <span class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-wind"></i> Zat Gas</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded-md">5 Contoh</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div onclick="openExampleModal('Oksigen (O2)', 'Gas tidak berwarna untuk bernapas makhluk hidup.', 'Gas')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🫁 Oksigen Udara</span>
+                                <i class="fa-solid fa-circle-info text-emerald-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Udara Balon', 'Gas menekan ke segala arah mengisi ruang fleksibel balon.', 'Gas')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🎈 Udara dalam Balon</span>
+                                <i class="fa-solid fa-circle-info text-emerald-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Gas LPG', 'Campuran gas propana/butana yang dimampatkan sebagai bahan bakar.', 'Gas')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">🔥 Gas Tabung LPG</span>
+                                <i class="fa-solid fa-circle-info text-emerald-500 text-xs"></i>
+                            </div>
+                            <div onclick="openExampleModal('Uap Air Dapur', 'Fase gas dari air ketika dipanaskan mencapai titik didih.', 'Gas')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 cursor-pointer flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-medium">♨️ Uap Air Memasak</span>
+                                <i class="fa-solid fa-circle-info text-emerald-500 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('materi')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('praktik'); markStepCompleted('contoh');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Lanjut ke Praktik LKPD <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: PRAKTIK / LKPD DIGITAL -->
+        <section id="sec-praktik" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div>
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 4: Lembar Kerja Peserta Didik (LKPD)</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        🧪 Praktik: Amati Lingkungan Sekitarmu
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm mt-2">
+                        Amati benda atau zat yang ada di sekitar kalian (minimal 6 contoh). Isilah LKPD Digital di bawah ini dengan lengkap!
+                    </p>
+                </div>
+
+                <!-- LKPD FORM TABLE -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold uppercase">
+                            <tr>
+                                <th class="p-3 w-12 text-center">No</th>
+                                <th class="p-3 min-w-[150px]">Nama Benda / Zat</th>
+                                <th class="p-3 min-w-[120px]">Wujud Zat</th>
+                                <th class="p-3 min-w-[180px]">Karakteristik Utamanya</th>
+                                <th class="p-3 min-w-[180px]">Alasan Klasifikasi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lkpdTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- LKPD Action Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="checkLKPDCompleteness()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-list-check"></i> Cek Kelengkapan
+                        </button>
+                        <button onclick="resetLKPD()" class="px-4 py-2.5 rounded-xl bg-slate-600 hover:bg-slate-700 text-white font-semibold text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Reset LKPD
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="saveLKPD()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Jawaban
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('contoh')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('quiz'); markStepCompleted('praktik');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Lanjut ke Quiz Interaktif <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: QUIZ INTERAKTIF -->
+        <section id="sec-quiz" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+                    <div>
+                        <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 5: Evaluasi Pemahaman</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                            ❓ Quiz Interaktif Zat & Perubahannya
+                        </h2>
+                    </div>
+
+                    <!-- Live Quiz Score Badge -->
+                    <div id="quizScoreBadge" class="hidden bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Skor Sementara: <span id="currentQuizScore" class="text-cyan-500 font-extrabold text-sm">0</span> / 100
+                    </div>
+                </div>
+
+                <!-- QUIZ CONTENT CONTAINER -->
+                <div id="quizContainer" class="space-y-6">
+                    <!-- Progress Bar Header -->
+                    <div class="flex justify-between items-center text-xs text-slate-500 font-bold">
+                        <span id="quizQuestionNum">Soal 1 dari 10</span>
+                        <span id="quizCategoryTag" class="px-2.5 py-1 rounded-md bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300">Kategori: Konsep Zat</span>
+                    </div>
+
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div id="quizProgressBar" class="bg-cyan-500 h-2 transition-all duration-300" style="width: 10%"></div>
+                    </div>
+
+                    <!-- Question Box -->
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 id="quizQuestionText" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
+                            <!-- Injected by JS -->
+                        </h3>
+
+                        <!-- Options List -->
+                        <div id="quizOptions" class="grid grid-cols-1 gap-3 pt-2">
+                            <!-- Options injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Immediate Feedback Modal/Box -->
+                    <div id="quizFeedbackBox" class="hidden p-5 rounded-2xl border space-y-2">
+                        <div id="quizFeedbackTitle" class="font-bold text-sm flex items-center gap-2"></div>
+                        <p id="quizFeedbackExplanation" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Next Question Button -->
+                    <div class="flex justify-end">
+                        <button id="nextQuizBtn" onclick="nextQuestion()" class="hidden px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm shadow-md shadow-cyan-500/20 items-center gap-2">
+                            Soal Berikutnya <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUIZ RESULT SCREEN (HIDDEN INITIALLY) -->
+                <div id="quizResultScreen" class="hidden text-center space-y-6 py-8">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-5xl">
+                        🏆
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white">Quiz Selesai!</h3>
+                        <p class="text-slate-500 text-sm mt-1">Berikut adalah hasil capaian evaluasi kamu:</p>
+                    </div>
+
+                    <div class="max-w-md mx-auto p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div class="text-4xl font-extrabold text-cyan-600 dark:text-cyan-400" id="finalScoreDisplay">
+                            0 / 100
+                        </div>
+                        <div class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" id="scoreCategoryBadge">
+                            -
+                        </div>
+                        <p id="scoreFeedbackText" class="text-xs text-slate-600 dark:text-slate-300 italic"></p>
+                    </div>
+
+                    <div class="flex justify-center space-x-4 pt-4">
+                        <button onclick="restartQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800">
+                            🔄 Ulangi Quiz
+                        </button>
+                        <button onclick="navigateTo('refleksi'); markStepCompleted('quiz');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-md shadow-cyan-500/20">
+                            Lanjut ke Refleksi →
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('praktik')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 8: REFLEKSI -->
+        <section id="sec-refleksi" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div>
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 6: Umpan Balik Diri</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        💭 Refleksi Pembelajaran
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                        Luangkan waktu sejenak untuk merefleksikan proses belajar kamu hari ini.
+                    </p>
+                </div>
+
+                <!-- Understanding Level Radio Options -->
+                <div class="space-y-3">
+                    <label class="font-bold text-sm text-slate-900 dark:text-white block">
+                        Bagaimana tingkat pemahamanmu terhadap materi hari ini?
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button onclick="selectReflectLevel(this, 'Sangat Paham')" class="reflect-level-btn p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-center font-bold text-xs space-y-1">
+                            <div class="text-2xl">😄</div>
+                            <div>Sangat Paham</div>
+                        </button>
+                        <button onclick="selectReflectLevel(this, 'Paham')" class="reflect-level-btn p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-center font-bold text-xs space-y-1">
+                            <div class="text-2xl">🙂</div>
+                            <div>Paham</div>
+                        </button>
+                        <button onclick="selectReflectLevel(this, 'Cukup Paham')" class="reflect-level-btn p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-center font-bold text-xs space-y-1">
+                            <div class="text-2xl">😐</div>
+                            <div>Cukup Paham</div>
+                        </button>
+                        <button onclick="selectReflectLevel(this, 'Masih Bingung')" class="reflect-level-btn p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-center font-bold text-xs space-y-1">
+                            <div class="text-2xl">🤔</div>
+                            <div>Masih Bingung</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea Questions -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            1. Apa hal baru yang kamu pelajari hari ini?
+                        </label>
+                        <textarea id="refq1" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            2. Apa perbedaan utama antara zat padat, cair, dan gas?
+                        </label>
+                        <textarea id="refq2" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            3. Contoh zat apa yang paling mudah kamu temukan di lingkungan sekitarmu?
+                        </label>
+                        <textarea id="refq3" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            4. Bagian materi mana yang masih terasa membingungkan bagi kamu?
+                        </label>
+                        <textarea id="refq4" rows="2" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Tuliskan jika ada kendala..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button onclick="saveReflection()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Refleksi
+                    </button>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('quiz')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('evaluasi'); markStepCompleted('refleksi');" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2">
+                        Lanjut ke Evaluasi <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 9: EVALUASI AKHIR -->
+        <section id="sec-evaluasi" class="hidden space-y-8 transition-all duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+                <div>
+                    <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Tahap 7: Ringkasan Progress</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 heading-font">
+                        📊 Evaluasi Hasil Belajar
+                    </h2>
+                </div>
+
+                <!-- Input Nama Siswa -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Masukkan Nama Lengkap Siswa (Untuk Sertifikat):
+                    </label>
+                    <div class="flex gap-3">
+                        <input type="text" id="studentNameInput" oninput="updateStudentName()" placeholder="Contoh: Muhammad Rizky" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold outline-none focus:ring-2 focus:ring-cyan-500" value="Siswa SMK Negeri 1 Tasikmalaya">
+                    </div>
+                </div>
+
+                <!-- Summary Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Identity Summary Card -->
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3 text-xs sm:text-sm">
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+                            📋 Identitas & Rincian Pembelajaran
+                        </h3>
+                        <p><strong>Mata Pelajaran:</strong> Projek IPAS</p>
+                        <p><strong>Materi Utama:</strong> Zat dan Perubahannya</p>
+                        <p><strong>Topik:</strong> Klasifikasi Zat & Karakteristik Wujudnya</p>
+                        <p><strong>Kelas / Fase:</strong> X / E</p>
+                        <p><strong>Sekolah:</strong> SMK Negeri 1 Tasikmalaya</p>
+                        <p><strong>Guru Pengampu:</strong> Wiyanti Dewi Permana, S.Pd.</p>
+                    </div>
+
+                    <!-- Progress Checklist Card -->
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3 text-xs sm:text-sm">
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+                            Status Kelengkapan Tahapan
+                        </h3>
+                        <div id="evalChecklist" class="space-y-2">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <button onclick="navigateTo('refleksi')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                        ← Kembali
+                    </button>
+                    <button onclick="navigateTo('sertifikat'); markStepCompleted('evaluasi');" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-sm shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                        🏆 Klaim Sertifikat <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 10: HASIL BELAJAR & SERTIFIKAT DIGITAL -->
+        <section id="sec-sertifikat" class="hidden space-y-8 transition-all duration-300">
+            <div class="flex justify-end no-print">
+                <button onclick="window.print()" class="px-6 py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak / Simpan Sertifikat (PDF)
+                </button>
+            </div>
+
+            <!-- PRINTABLE CERTIFICATE CARD -->
+            <div id="printableCertificate" class="bg-white text-slate-900 rounded-3xl p-8 sm:p-12 border-8 double border-cyan-700 shadow-2xl relative overflow-hidden space-y-6 max-w-4xl mx-auto my-4">
+                
+                <!-- Certificate Decorative Background -->
+                <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-cyan-100 opacity-60"></div>
+                <div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-blue-100 opacity-60"></div>
+
+                <!-- Header -->
+                <div class="text-center space-y-2 border-b-2 border-slate-200 pb-6 relative z-10">
+                    <div class="text-cyan-700 text-3xl font-black uppercase tracking-widest heading-font">
+                        SERTIFIKAT HASIL BELAJAR
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">
+                        SMK Negeri 1 Tasikmalaya • Projek IPAS (Fase E)
+                    </p>
+                </div>
+
+                <!-- Body Statement -->
+                <div class="text-center space-y-4 py-4 relative z-10">
+                    <p class="text-xs font-medium text-slate-600 uppercase tracking-widest">Diberikan Kepada:</p>
+                    <h2 id="certStudentName" class="text-2xl sm:text-4xl font-extrabold text-slate-900 border-b-2 border-slate-900 inline-block px-8 pb-1">
+                        Siswa SMK Negeri 1 Tasikmalaya
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed pt-2">
+                        Telah berhasil menyelesaikan seluruh rangkaian alur pembelajaran digital interaktif pada mata pelajaran <strong>Projek IPAS</strong> dengan topik:
+                    </p>
+                    <div class="font-bold text-sm sm:text-base text-cyan-800 bg-cyan-50 py-2 px-4 rounded-xl border border-cyan-200 inline-block">
+                        "Klasifikasi Zat dan Karakteristik Wujudnya"
+                    </div>
+                </div>
+
+                <!-- Certificate Footer & Signatures -->
+                <div class="pt-8 border-t border-slate-200 grid grid-cols-2 gap-8 text-center text-xs relative z-10">
+                    <div>
+                        <p class="text-slate-500">Tanggal Penyelesaian:</p>
+                        <p id="certDate" class="font-bold text-slate-800 mt-1">-</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500">Guru Pengampu Projek IPAS,</p>
+                        <div class="font-semibold italic text-slate-400 my-3">Signed Digitally</div>
+                        <p class="font-extrabold text-slate-900 text-sm">Wiyanti Dewi Permana, S.Pd.</p>
+                        <p class="text-[10px] text-slate-500">SMK Negeri 1 Tasikmalaya</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 flex justify-between items-center no-print">
+                <button onclick="navigateTo('evaluasi')" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-sm">
+                    ← Kembali
+                </button>
+                <button onclick="navigateTo('hero')" class="px-6 py-2.5 rounded-xl bg-slate-800 text-white font-semibold text-sm hover:bg-slate-700">
+                    🏠 Kembali ke Beranda
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 no-print">
+        <div class="max-w-7xl mx-auto px-4 space-y-1">
+            <p>© Projek IPAS - SMK Negeri 1 Tasikmalaya • Wiyanti Dewi Permana</p>
+            <p>Materi: Zat dan Perubahannya (Klasifikasi & Karakteristik Wujud Zat)</p>
+        </div>
+    </footer>
+
+    <!-- GLOBAL EXAMPLE MODAL -->
+    <div id="exampleModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 id="modalTitle" class="font-bold text-lg text-slate-900 dark:text-white"></h3>
+                <button onclick="closeExampleModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p id="modalDesc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+            <div id="modalBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold"></div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeExampleModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-semibold text-xs text-slate-700 dark:text-slate-300">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 hidden max-w-sm px-5 py-3.5 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-2xl flex items-center space-x-3 text-xs sm:text-sm transition-all duration-300">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMessage">Pemberitahuan</span>
+    </div>
+
+    <script>
+        /* APP STATE MANAGEMENT */
+        const appState = {
+            currentStep: 'hero',
+            audioEnabled: true,
+            isDarkMode: false,
+            studentName: 'Siswa SMK Negeri 1 Tasikmalaya',
+            completedSteps: new Set(['hero']),
+            quizScore: 0,
+            quizCurrentIndex: 0,
+            lkpdSaved: false,
+            refleksiSaved: false,
+            refleksiLevel: ''
+        };
+
+        const stepsList = [
+            { id: 'hero', title: 'Beranda', icon: 'fa-house' },
+            { id: 'tujuan', title: 'Tujuan', icon: 'fa-bullseye' },
+            { id: 'eksplorasi', title: 'Eksplorasi', icon: 'fa-magnifying-glass' },
+            { id: 'materi', title: 'Materi', icon: 'fa-book' },
+            { id: 'contoh', title: 'Contoh', icon: 'fa-globe' },
+            { id: 'praktik', title: 'Praktik (LKPD)', icon: 'fa-vial' },
+            { id: 'quiz', title: 'Quiz', icon: 'fa-circle-question' },
+            { id: 'refleksi', title: 'Refleksi', icon: 'fa-comment-dots' },
+            { id: 'evaluasi', title: 'Evaluasi', icon: 'fa-chart-pie' },
+            { id: 'sertifikat', title: 'Sertifikat', icon: 'fa-award' }
+        ];
+
+        /* WEB AUDIO SYNTHESIZER (NO EXTERNAL ASSETS NEEDED) */
+        let audioCtx = null;
+        function playSound(type) {
+            if (!appState.audioEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.2); // E5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(130.81, audioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio not allowed yet");
+            }
+        }
+
+        function toggleAudio() {
+            appState.audioEnabled = !appState.audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (appState.audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-cyan-600 dark:text-cyan-400';
+                showToast("Efek suara diaktifkan", "success");
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                showToast("Efek suara dimatikan", "info");
+            }
+        }
+
+        /* DARK MODE TOGGLE */
+        function toggleDarkMode() {
+            appState.isDarkMode = !appState.isDarkMode;
+            const themeIcon = document.getElementById('themeIcon');
+            if (appState.isDarkMode) {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-indigo-500';
+            }
+        }
+
+        /* NAVIGATION & STEPPER */
+        function navigateTo(stepId) {
+            playSound('click');
+            appState.currentStep = stepId;
+
+            // Hide all sections
+            stepsList.forEach(s => {
+                const el = document.getElementById(`sec-${s.id}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Show target section
+            const target = document.getElementById(`sec-${stepId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Close mobile menu if open
+            document.getElementById('mobileMenu').classList.add('hidden');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Render Stepper UI & Update Progress
+            renderStepper();
+            updateProgress();
+
+            // Trigger specific section initializations
+            if (stepId === 'materi') {
+                initCanvasSimulation();
+            } else if (stepId === 'evaluasi') {
+                renderEvaluasiSummary();
+            } else if (stepId === 'sertifikat') {
+                renderCertificate();
+            }
+        }
+
+        function markStepCompleted(stepId) {
+            appState.completedSteps.add(stepId);
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const percentage = Math.round((appState.completedSteps.size / stepsList.length) * 100);
+            document.getElementById('globalProgressBar').style.width = `${percentage}%`;
+            document.getElementById('navProgressText').innerText = `${percentage}%`;
+        }
+
+        function renderStepper() {
+            const desktopStepper = document.getElementById('desktopStepper');
+            const mobileNavItems = document.getElementById('mobileNavItems');
+
+            let desktopHTML = '';
+            let mobileHTML = '';
+
+            stepsList.forEach((step, index) => {
+                const isActive = appState.currentStep === step.id;
+                const isDone = appState.completedSteps.has(step.id);
+
+                let badgeClass = 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:border-slate-700';
+                if (isActive) {
+                    badgeClass = 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/20 font-bold';
+                } else if (isDone) {
+                    badgeClass = 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300 border-cyan-300';
+                }
+
+                desktopHTML += `
+                    <button onclick="navigateTo('${step.id}')" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition ${badgeClass}">
+                        <i class="fa-solid ${step.icon}"></i>
+                        <span>${step.title}</span>
+                    </button>
+                `;
+
+                mobileHTML += `
+                    <button onclick="navigateTo('${step.id}')" class="flex items-center justify-between p-3 rounded-xl transition ${badgeClass}">
+                        <span class="flex items-center space-x-3">
+                            <i class="fa-solid ${step.icon}"></i>
+                            <span>${step.title}</span>
+                        </span>
+                        ${isDone ? '<i class="fa-solid fa-circle-check text-cyan-500"></i>' : ''}
+                    </button>
+                `;
+            });
+
+            desktopStepper.innerHTML = desktopHTML;
+            mobileNavItems.innerHTML = mobileHTML;
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        /* EKSPLORASI FACTS */
+        function showFact(type) {
+            playSound('click');
+            const factBox = document.getElementById('factBox');
+            const title = document.getElementById('factTitle');
+            const desc = document.getElementById('factDesc');
+
+            factBox.classList.remove('hidden');
+
+            if (type === 'padat') {
+                title.innerText = '🧱 Fakta Ilmiah Zat Padat';
+                desc.innerText = 'Partikel zat padat diikat oleh gaya tarik elektrostatik antarmolekul yang sangat kuat. Akibatnya, partikel tidak dapat bergerak secara bebas dan hanya bergetar di tempatnya masing-masing, menghasilkan wujud yang memiliki bentuk dan volume tetap.';
+            } else if (type === 'cair') {
+                title.innerText = '💧 Fakta Ilmiah Zat Cair';
+                desc.innerText = 'Partikel zat cair memiliki jarak sedikit lebih renggang daripada padat. Gaya tarik antarmolekulnya lemah, membuat molekul dapat meluncur satu sama lain. Oleh karena itu, cairan dapat mengalir dan bentuknya selalu mengikuti wujud wadahnya.';
+            } else if (type === 'gas') {
+                title.innerText = '💨 Fakta Ilmiah Zat Gas';
+                desc.innerText = 'Jarak antar-partikel gas sangat jauh berjauhan dan gaya tariknya hampir tidak ada. Partikel gas bergerak acak dengan kecepatan sangat tinggi, selalu bertumbukan, dan memenuhi seluruh ruang tempat ia berada.';
+            }
+        }
+
+        function checkWarmup(num, answer, isCorrect) {
+            if (isCorrect) {
+                playSound('correct');
+                showToast(`Jawaban no ${num} Tepat! 👍`, "success");
+            } else {
+                playSound('wrong');
+                showToast(`Kurang tepat untuk no ${num}, coba diingat sifatnya!`, "warning");
+            }
+        }
+
+        /* CANVAS PARTICLE SIMULATOR */
+        let canvas, ctx;
+        let particles = [];
+        let simulationState = 'padat'; // 'padat', 'cair', 'gas'
+        let isSimulating = true;
+        let animationFrameId;
+
+        function initCanvasSimulation() {
+            canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            // Responsive scale adjustment
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            setParticleState('padat');
+        }
+
+        function setParticleState(state) {
+            playSound('click');
+            simulationState = state;
+
+            // Active tab buttons update
+            ['Padat', 'Cair', 'Gas'].forEach(st => {
+                const btn = document.getElementById(`tab${st}`);
+                if (st.toLowerCase() === state) {
+                    btn.className = `px-4 py-2 rounded-lg text-xs font-bold transition ${
+                        state === 'padat' ? 'bg-blue-600 text-white' :
+                        state === 'cair' ? 'bg-cyan-600 text-white' : 'bg-emerald-600 text-white'
+                    }`;
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white';
+                }
+            });
+
+            // Update info badge
+            const badge = document.getElementById('particleInfoBadge');
+            if (state === 'padat') {
+                badge.innerHTML = '<strong class="text-blue-400">Padat:</strong> Partikel sangat rapat, teratur, dan hanya bergetar sedikit di posisi tetap.';
+            } else if (state === 'cair') {
+                badge.innerHTML = '<strong class="text-cyan-400">Cair:</strong> Partikel agak renggang, kurang teratur, dan bebas meluncur namun terbatas.';
+            } else {
+                badge.innerHTML = '<strong class="text-emerald-400">Gas:</strong> Partikel sangat renggang, acak, dan bergerak bebas dengan kecepatan tinggi.';
+            }
+
+            createParticles();
+            if (isSimulating) {
+                cancelAnimationFrame(animationFrameId);
+                animateParticles();
+            }
+        }
+
+        function createParticles() {
+            particles = [];
+            const width = canvas.width;
+            const height = canvas.height;
+
+            if (simulationState === 'padat') {
+                const cols = 10;
+                const rows = 6;
+                const startX = (width - cols * 24) / 2;
+                const startY = (height - rows * 24) / 2;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        particles.push({
+                            x: startX + c * 24,
+                            y: startY + r * 24,
+                            originX: startX + c * 24,
+                            originY: startY + r * 24,
+                            vx: 0,
+                            vy: 0,
+                            radius: 8,
+                            color: '#3b82f6'
+                        });
+                    }
+                }
+            } else if (simulationState === 'cair') {
+                const count = 45;
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * (width - 40) + 20,
+                        y: height - Math.random() * 120 - 20,
+                        vx: (Math.random() - 0.5) * 1.5,
+                        vy: (Math.random() - 0.5) * 1.5,
+                        radius: 8,
+                        color: '#06b6d4'
+                    });
+                }
+            } else if (simulationState === 'gas') {
+                const count = 30;
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * (width - 40) + 20,
+                        y: Math.random() * (height - 40) + 20,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        radius: 8,
+                        color: '#10b981'
+                    });
+                }
+            }
+        }
+
+        function animateParticles() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                if (simulationState === 'padat') {
+                    // Small vibration around origin
+                    p.x = p.originX + (Math.random() - 0.5) * 2;
+                    p.y = p.originY + (Math.random() - 0.5) * 2;
+                } else if (simulationState === 'cair') {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Container boundaries (bottom oriented liquid)
+                    if (p.x < p.radius || p.x > canvas.width - p.radius) p.vx *= -1;
+                    if (p.y < canvas.height - 140 || p.y > canvas.height - p.radius) p.vy *= -1;
+                } else if (simulationState === 'gas') {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Bounce all walls
+                    if (p.x < p.radius || p.x > canvas.width - p.radius) p.vx *= -1;
+                    if (p.y < p.radius || p.y > canvas.height - p.radius) p.vy *= -1;
+                }
+
+                // Draw Particle
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+                ctx.closePath();
+            });
+
+            if (isSimulating) {
+                animationFrameId = requestAnimationFrame(animateParticles);
+            }
+        }
+
+        function playSimulation() {
+            if (!isSimulating) {
+                isSimulating = true;
+                animateParticles();
+            }
+        }
+
+        function pauseSimulation() {
+            isSimulating = false;
+            cancelAnimationFrame(animationFrameId);
+        }
+
+        function resetSimulation() {
+            setParticleState(simulationState);
+        }
+
+        function openExampleModal(title, desc, state) {
+            playSound('click');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            
+            const badge = document.getElementById('modalBadge');
+            badge.innerText = `Wujud: ${state}`;
+            if (state === 'Padat') badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800';
+            else if (state === 'Cair') badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800';
+            else badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+
+            document.getElementById('exampleModal').classList.remove('hidden');
+        }
+
+        function closeExampleModal() {
+            document.getElementById('exampleModal').classList.add('hidden');
+        }
+
+        /* LKPD DIGITAL LOGIC */
+        function initLKPDTable() {
+            const tbody = document.getElementById('lkpdTableBody');
+            tbody.innerHTML = '';
+
+            for (let i = 1; i <= 6; i++) {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3 text-center font-bold text-slate-500">${i}</td>
+                        <td class="p-3">
+                            <input type="text" id="lkpd_nama_${i}" placeholder="Contoh: Es Batu" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-cyan-500 outline-none">
+                        </td>
+                        <td class="p-3">
+                            <select id="lkpd_wujud_${i}" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-cyan-500 outline-none">
+                                <option value="">-- Pilih --</option>
+                                <option value="Padat">Padat</option>
+                                <option value="Cair">Cair</option>
+                                <option value="Gas">Gas</option>
+                            </select>
+                        </td>
+                        <td class="p-3">
+                            <input type="text" id="lkpd_karakter_${i}" placeholder="Contoh: Bentuk tetap, keras" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-cyan-500 outline-none">
+                        </td>
+                        <td class="p-3">
+                            <input type="text" id="lkpd_alasan_${i}" placeholder="Contoh: Partikel sangat rapat" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-1 focus:ring-cyan-500 outline-none">
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function checkLKPDCompleteness() {
+            let completeCount = 0;
+            for (let i = 1; i <= 6; i++) {
+                const nama = document.getElementById(`lkpd_nama_${i}`).value.trim();
+                const wujud = document.getElementById(`lkpd_wujud_${i}`).value;
+                const karakter = document.getElementById(`lkpd_karakter_${i}`).value.trim();
+                const alasan = document.getElementById(`lkpd_alasan_${i}`).value.trim();
+
+                if (nama && wujud && karakter && alasan) {
+                    completeCount++;
+                }
+            }
+
+            if (completeCount === 6) {
+                playSound('correct');
+                showToast("Sempurna! Semua 6 baris LKPD sudah terisi lengkap.", "success");
+                return true;
+            } else {
+                playSound('wrong');
+                showToast(`LKPD belum lengkap! Baru terisi ${completeCount} dari 6 baris.`, "warning");
+                return false;
+            }
+        }
+
+        function saveLKPD() {
+            if (checkLKPDCompleteness()) {
+                appState.lkpdSaved = true;
+                markStepCompleted('praktik');
+                showToast("Jawaban LKPD berhasil disimpan!", "success");
+            }
+        }
+
+        function resetLKPD() {
+            initLKPDTable();
+            appState.lkpdSaved = false;
+            showToast("Form LKPD telah direset.", "info");
+        }
+
+        /* QUIZ ENGINE & QUESTIONS */
+        const quizData = [
+            {
+                q: "1. Pengertian dasar materi (zat) dalam IPAS adalah segala sesuatu yang...",
+                options: [
+                    "A. Berwarna terang dan dapat menyerap panas",
+                    "B. Memiliki massa dan menempati ruang (memiliki volume)",
+                    "C. Bergerak bebas dan tidak dapat ditimbang",
+                    "D. Berwujud cair dan dapat membeku"
+                ],
+                correct: 1,
+                explanation: "Sesuai definisi ilmu sains, materi (zat) adalah segala sesuatu yang memiliki massa dan volume (menempati ruang)."
+            },
+            {
+                q: "2. Suatu zat memiliki bentuk berubah mengikuti wadahnya, namun volumenya selalu tetap. Zat tersebut tergolong...",
+                options: [
+                    "A. Zat Padat",
+                    "B. Zat Cair",
+                    "C. Zat Gas",
+                    "D. Plasma"
+                ],
+                correct: 1,
+                explanation: "Zat cair memiliki ciri khas bentuk yang berubah menyesuaikan wadah, tetapi volumenya tetap."
+            },
+            {
+                q: "3. Bagaimana susunan dan jarak antar-partikel pada zat padat?",
+                options: [
+                    "A. Sangat rapat dan teratur",
+                    "B. Agak renggang dan acak",
+                    "C. Sangat renggang dan bebas",
+                    "D. Tidak memiliki ikatan partikel"
+                ],
+                correct: 0,
+                explanation: "Partikel zat padat memiliki ikatan yang sangat kuat sehingga susunannya sangat rapat dan teratur."
+            },
+            {
+                q: "4. Gaya tarik-menarik antar-partikel yang paling lemah ditemukan pada wujud...",
+                options: [
+                    "A. Padat",
+                    "B. Cair",
+                    "C. Gas",
+                    "D. Kristal"
+                ],
+                correct: 2,
+                explanation: "Pada zat gas, gaya tarik antar-partikel sangat lemah (hampir tidak ada), sehingga bergerak sangat bebas."
+            },
+            {
+                q: "5. Mengapa gas sangat mudah dimampatkan (memiliki kompresibilitas tinggi)?",
+                options: [
+                    "A. Karena partikelnya sangat padat",
+                    "B. Karena jarak antar-partikel gas sangat renggang",
+                    "C. Karena bentuknya selalu tetap",
+                    "D. Karena gaya tariknya sangat kuat"
+                ],
+                correct: 1,
+                explanation: "Jarak antar-partikel gas yang berjauhan memberikan banyak ruang kosong untuk dimampatkan."
+            },
+            {
+                q: "6. Gerakan partikel pada zat padat adalah...",
+                options: [
+                    "A. Bebas meluncur ke mana saja",
+                    "B. Bergerak sangat cepat bertumbukan",
+                    "C. Hanya bergetar (bevibrasi) di tempatnya",
+                    "D. Berputar mengelilingi wadah"
+                ],
+                correct: 2,
+                explanation: "Karena terikat kuat, partikel zat padat tidak bisa berpindah tempat melainkan hanya bergetar di posisinya."
+            },
+            {
+                q: "7. Di antara benda berikut yang merupakan contoh zat cair di lingkungan sekolah SMK adalah...",
+                options: [
+                    "A. Kayu meja belajar",
+                    "B. Pertalite bahan bakar sepeda motor",
+                    "C. Udara dalam ban",
+                    "D. Kaca jendela"
+                ],
+                correct: 1,
+                explanation: "Pertalite / bensin merupakan fluida berwujud cair."
+            },
+            {
+                q: "8. Asap sisa pembakaran mesin dan oksigen yang kita hirup tergolong wujud...",
+                options: [
+                    "A. Padat",
+                    "B. Cair",
+                    "C. Gas",
+                    "D. Unsur padat"
+                ],
+                correct: 2,
+                explanation: "Asap dan Oksigen adalah contoh nyata dari zat berwujud gas."
+            },
+            {
+                q: "9. Apabila air dipindahkan dari cangkir ke dalam botol minum, maka...",
+                options: [
+                    "A. Bentuk dan volumenya berubah",
+                    "B. Bentuknya tetap, volumenya berubah",
+                    "C. Bentuknya berubah mengikuti botol, volumenya tetap",
+                    "D. Bentuk dan volumenya tetap"
+                ],
+                correct: 2,
+                explanation: "Zat cair menyesuaikan bentuk wadah barunya (botol), namun jumlah volume cairan tetap sama."
+            },
+            {
+                q: "10. Sifat khas zat gas saat dimasukkan ke dalam wadah tertutup adalah...",
+                options: [
+                    "A. Hanya menempati bagian dasar wadah",
+                    "B. Memenuhi seluruh ruangan wadah dan memberikan tekanan ke segala arah",
+                    "C. Berubah menjadi zat padat",
+                    "D. Mengendap di pojok wadah"
+                ],
+                correct: 1,
+                explanation: "Zat gas selalu berekspansi mengisi seluruh volume ruangan wadah dan memberikan tekanan seragam."
+            }
+        ];
+
+        let userQuizAnswers = [];
+
+        function renderQuizQuestion() {
+            const index = appState.quizCurrentIndex;
+            const qData = quizData[index];
+
+            document.getElementById('quizQuestionNum').innerText = `Soal ${index + 1} dari ${quizData.length}`;
+            document.getElementById('quizProgressBar').style.width = `${((index + 1) / quizData.length) * 100}%`;
+            document.getElementById('quizQuestionText').innerText = qData.q;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            qData.options.forEach((opt, optIdx) => {
+                optionsContainer.innerHTML += `
+                    <button onclick="selectQuizAnswer(${optIdx})" class="quiz-opt-btn text-left p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-cyan-500 font-medium text-xs sm:text-sm transition flex items-center justify-between">
+                        <span>${opt}</span>
+                        <i class="fa-regular fa-circle text-slate-300"></i>
+                    </button>
+                `;
+            });
+
+            document.getElementById('quizFeedbackBox').className = 'hidden p-5 rounded-2xl border space-y-2';
+            document.getElementById('nextQuizBtn').classList.add('hidden');
+        }
+
+        function selectQuizAnswer(optIndex) {
+            const index = appState.quizCurrentIndex;
+            const qData = quizData[index];
+            const isCorrect = optIndex === qData.correct;
+
+            userQuizAnswers[index] = optIndex;
+
+            // Disable buttons
+            const btns = document.querySelectorAll('.quiz-opt-btn');
+            btns.forEach((btn, idx) => {
+                btn.onclick = null;
+                if (idx === qData.correct) {
+                    btn.classList.add('bg-emerald-50', 'dark:bg-emerald-950/50', 'border-emerald-500', 'text-emerald-700', 'dark:text-emerald-300');
+                } else if (idx === optIndex && !isCorrect) {
+                    btn.classList.add('bg-rose-50', 'dark:bg-rose-950/50', 'border-rose-500', 'text-rose-700', 'dark:text-rose-300');
+                }
+            });
+
+            // Feedback Box
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+            const feedbackTitle = document.getElementById('quizFeedbackTitle');
+            const feedbackExp = document.getElementById('quizFeedbackExplanation');
+
+            feedbackBox.classList.remove('hidden');
+            if (isCorrect) {
+                playSound('correct');
+                feedbackBox.className = 'p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200';
+                feedbackTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i> <span>Jawaban Kamu Benar!</span>';
+            } else {
+                playSound('wrong');
+                feedbackBox.className = 'p-5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200';
+                feedbackTitle.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500 text-lg"></i> <span>Jawaban Kurang Tepat</span>';
+            }
+
+            feedbackExp.innerText = qData.explanation;
+            document.getElementById('nextQuizBtn').classList.remove('hidden');
+            document.getElementById('nextQuizBtn').classList.add('inline-flex');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (appState.quizCurrentIndex < quizData.length - 1) {
+                appState.quizCurrentIndex++;
+                renderQuizQuestion();
+            } else {
+                calculateQuizResults();
+            }
+        }
+
+        function calculateQuizResults() {
+            let correctCount = 0;
+            userQuizAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].correct) correctCount++;
+            });
+
+            const score = correctCount * 10;
+            appState.quizScore = score;
+
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResultScreen').classList.remove('hidden');
+
+            document.getElementById('finalScoreDisplay').innerText = `${score} / 100`;
+
+            const badge = document.getElementById('scoreCategoryBadge');
+            const text = document.getElementById('scoreFeedbackText');
+
+            if (score >= 90) {
+                badge.innerText = "Sangat Baik";
+                badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+                text.innerText = "Luar biasa! Pemahaman kamu tentang klasifikasi wujud zat sangat matang!";
+            } else if (score >= 75) {
+                badge.innerText = "Baik";
+                badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800";
+                text.innerText = "Bagus sekali! Kamu sudah menguasai sebagian besar materi IPAS ini.";
+            } else if (score >= 60) {
+                badge.innerText = "Cukup";
+                badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+                text.innerText = "Cukup baik. Kamu bisa membaca ulang tabel materi agar lebih paham.";
+            } else {
+                badge.innerText = "Perlu Belajar Lagi";
+                badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800";
+                text.innerText = "Jangan berkecil hati, mari kita ulangi simulasi partikel dan contoh zat!";
+            }
+
+            markStepCompleted('quiz');
+        }
+
+        function restartQuiz() {
+            appState.quizCurrentIndex = 0;
+            userQuizAnswers = [];
+            document.getElementById('quizResultScreen').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            renderQuizQuestion();
+        }
+
+        function selectReflectLevel(btn, level) {
+            playSound('click');
+            appState.refleksiLevel = level;
+            document.querySelectorAll('.reflect-level-btn').forEach(b => {
+                b.classList.remove('border-cyan-500', 'bg-cyan-50', 'dark:bg-cyan-950');
+            });
+            btn.classList.add('border-cyan-500', 'bg-cyan-50', 'dark:bg-cyan-950');
+        }
+
+        function saveReflection() {
+            const q1 = document.getElementById('refq1').value.trim();
+            if (!appState.refleksiLevel) {
+                showToast("Pilih salah satu tingkat pemahamanmu!", "warning");
+                return;
+            }
+            playSound('correct');
+            appState.refleksiSaved = true;
+            markStepCompleted('refleksi');
+            showToast("Refleksi belajar berhasil disimpan!", "success");
+        }
+
+        function updateStudentName() {
+            const val = document.getElementById('studentNameInput').value.trim();
+            appState.studentName = val || 'Siswa SMK Negeri 1 Tasikmalaya';
+        }
+
+        function renderEvaluasiSummary() {
+            const checklistContainer = document.getElementById('evalChecklist');
+            let html = '';
+
+            stepsList.forEach(s => {
+                const isDone = appState.completedSteps.has(s.id);
+                html += `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                        <span class="flex items-center gap-2 font-medium">
+                            <i class="fa-solid ${s.icon} text-cyan-500"></i> ${s.title}
+                        </span>
+                        ${isDone ? 
+                            '<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1 rounded-md">✓ Selesai</span>' : 
+                            '<span class="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-1 rounded-md">Belum</span>'}
+                    </div>
+                `;
+            });
+
+            checklistContainer.innerHTML = html;
+        }
+
+        function renderCertificate() {
+            document.getElementById('certStudentName').innerText = appState.studentName;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('certDate').innerText = dateStr;
+        }
+
+        /* GLOBAL TOAST NOTIFIER */
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            const message = document.getElementById('toastMessage');
+
+            message.innerText = msg;
+
+            if (type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            } else if (type === 'warning') {
+                icon.className = 'fa-solid fa-triangle-exclamation text-amber-400 text-lg';
+            } else {
+                icon.className = 'fa-solid fa-circle-info text-cyan-400 text-lg';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        /* INIT ON LOAD */
+        window.onload = function() {
+            renderStepper();
+            initLKPDTable();
+            renderQuizQuestion();
+            updateProgress();
+        };
+    </script>
+</body>
+</html>
